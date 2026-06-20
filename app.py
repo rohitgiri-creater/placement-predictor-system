@@ -3,8 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
+
 
 # ================= LOAD DATA =================
 data = pd.read_csv("placementdata.csv")
@@ -53,22 +56,24 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # ================= MODEL =================
 model = RandomForestClassifier(
-    n_estimators=200,
-    max_depth=10,
-    class_weight="balanced",
+    n_estimators=50,
+    max_depth=4,
+    min_samples_split=10,
+    min_samples_leaf=5,
     random_state=42
 )
 
 model.fit(X_train, y_train)
 
 # ================= ACCURACY =================
-y_pred = model.predict(X_test)
-acc = accuracy_score(y_test, y_pred)
+# ================= ACCURACY =================
+cv_scores = cross_val_score(model, X, y, cv=5)
+acc = cv_scores.mean()
 
 st.title("Student Placement Prediction System")
 st.write("This project predicts whether a student will be placed or not.")
 
-st.info(f"Model Accuracy: {acc*100:.2f}%")
+
 
 # ================= INPUT =================
 st.subheader("Enter Student Details")
@@ -183,8 +188,8 @@ if st.button("Predict"):
     if training == "No":
         suggestions.append("🎯 Take placement training seriously")
 
-    if len(suggestions) == 0:
+    if len(suggestions) == 7:
         st.success("🎉 Excellent profile! No improvements needed")
     else:
-        for s in suggestions:
-            st.write("•", s)
+     for s in suggestions:
+      st.write("•", s)
